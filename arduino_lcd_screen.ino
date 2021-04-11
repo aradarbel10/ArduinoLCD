@@ -1,10 +1,10 @@
 #include "CharacterLCD.h"
 
+LCD MyLCD = new LCD;
+
 //setup & main loop
 void setup() {
   Serial.begin(9600);
-  
-  pinMode(LED_BUILTIN, OUTPUT);
 
   pinMode(RS, OUTPUT);
   pinMode(EN, OUTPUT);
@@ -25,10 +25,10 @@ void loop() { //blink to make sure arduino is alive
 
     if(input.substring(0, 5) == "clear"){
       Serial.println("clearing display");
-      clearDisp();
+      MyLCD.clearDisp();
     }else if(input.substring(0, 4) == "home"){
       Serial.println("returning home");
-      returnHome();
+      MyLCD.returnHome();
     }else if(input.substring(0, 4) == "data"){
       String param = input.substring(5, 13);
       unsigned char param_val = strToChar(param);
@@ -45,16 +45,16 @@ void loop() { //blink to make sure arduino is alive
         Serial.print("sending binary data ");
         Serial.println(param);
 
-        sendInstruction(param_val, false);
+        MyLCD.sendInstruction(param_val, false);
       }else{
         Serial.println("invalid parameter!");
       }
     }else if(input.substring(0, 5) == "allon"){
       Serial.println("all on");
-      displayControl(true, true, true);
+      MyLCD.displayControl(true, true, true);
     }else if(input.substring(0, 5) == "pinit"){
       Serial.println("plain initialization");
-      functionSet(true, true, false);
+      MyLCD.functionSet(true, true, false);
     }else if(input.substring(0, 4) == "inst"){
       String param = input.substring(5, 13);
       unsigned char param_val = strToChar(param);
@@ -71,7 +71,7 @@ void loop() { //blink to make sure arduino is alive
         Serial.print("sending binary instruction ");
         Serial.println(param);
 
-        sendInstruction(param_val);
+        MyLCD.sendInstruction(param_val);
       }else{
         Serial.println("invalid parameter!");
       }
@@ -79,10 +79,10 @@ void loop() { //blink to make sure arduino is alive
       char param = input.charAt(7);
       if(param == 'l'){
         Serial.println("programmer set to 8-bit communication mode");
-        longbus = true;
+        MyLCD.setLongBus(true);
       }else if(param == 's'){
         Serial.println("programmer set to 4-bit communication mode");
-        longbus = false;
+        MyLCD.setLongBus(false);
       }else{
         Serial.println("invalid parameter!");
       }
