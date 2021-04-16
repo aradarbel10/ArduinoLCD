@@ -1,6 +1,6 @@
 #include "CharacterLCD.h"
 
-LCD MyLCD = new LCD;
+LCD MyLCD = LCD();
 
 //setup & main loop
 void setup() {
@@ -11,6 +11,7 @@ void loop() { //blink to make sure arduino is alive
 	while(Serial.available() > 0){
 		String input = Serial.readString();
 
+		//Serial CLI to interact with the display, recommended to use for debugging
 		if(input.substring(0, 5) == "clear"){
 			Serial.println("clearing display");
 			MyLCD.clearDisp();
@@ -74,6 +75,10 @@ void loop() { //blink to make sure arduino is alive
 			}else{
 				Serial.println("invalid parameter!");
 			}
+		}else if(input.substring(0, 9) == "shiftloop"){
+			MyLCD.returnHome();
+			
+		}
 		}else{
 		  Serial.println("unrecognized instruction!");
 		}

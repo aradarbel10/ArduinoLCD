@@ -1,19 +1,26 @@
+#pragma once
 #include "Arduino.h"
 
 unsigned char strToChar(String str);
 
 class LCD{
 public:
-	LCD() = default;
-	LCD(int RegSel, int Enable, int data0, int data1, int data2, int data3, int data4, int data5, int data6, int data7);
+	LCD(int RegSel = 11, int Enable = 12, int data0 = 2, int data1 = 3, int data2 = 4, int data3 = 5, int data4 = 6, int data5 = 7, int data6 = 8, int data7 = 9);
+
+	enum DIRECTION{ BACK, FORWARD }
+
+	//higher-level stuff
+	void print(String str);
+	void drawBitmap(bool[][] bmp);
 
 	//instructions
 	void clearDisp();
+	void returnHome();
+	void setEntryMode(DIRECTION dir, bool curs);
 	void setDDRAMAddress(unsigned char addr);
 	void writeToRAM(unsigned char data);
 	void functionSet(bool data_length, bool lines_num, bool font);
 	void displayControl(bool disp, bool curs, bool blnk);
-	void returnHome();
 
 	//utility to communicate with LCD
 	void setWriteDuration(float dur);
@@ -25,9 +32,25 @@ public:
 	void sendData(unsigned char data);
 
 private:
-	int RS = 11, EN = 12;
-	int D0 = 2, D1 = 3, D2 = 4, D3 = 5, D4 = 6, D5 = 7, D6 = 8, D7 = 9;
+	//digital pins
+	int RS, EN;
+	int D0, D1, D2, D3, D4, D5, D6, D7;
+
+	//timing
 	float write_duration = 50;
 
+	//display settings
 	bool longbus = true;
+	int num_of_lines = 2;
+	bool small_font = true;
+
+	bool disp_active = false;
+	bool curs_active = false;
+	bool blnk_active = false;
+
+	DIRECTION entry_dir = FORWARD;
+	bool entry_shift_disp = false;
+
+	uint8_t DDRAMAddress = 0;
+
 };

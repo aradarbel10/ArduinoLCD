@@ -12,7 +12,7 @@ unsigned char strToChar(String str){
 	return res;
 }
 
-LCD::LCD(int RegSel, int Enable, int data0, int data1, int data2, int data3, int data4, int data5, int data6, int data7){
+LCD::LCD(int RegSel = 11, int Enable = 12, int data0 = 2, int data1 = 3, int data2 = 4, int data3 = 5, int data4 = 6, int data5 = 7, int data6 = 8, int data7 = 9){
 	RS = RegSel;
 	EN = Enable;
 
@@ -58,8 +58,8 @@ void LCD::sendByte(unsigned char data){
 	digitalWrite(D2, (data & 0b00000100) >> 2);
 	digitalWrite(D1, (data & 0b00000010) >> 1);
 	digitalWrite(D0, (data & 0b00000001) >> 0);
-  
-  
+
+
 	delay(write_duration);
 	digitalWrite(EN, LOW);
 }
@@ -99,21 +99,34 @@ void LCD::clearDisp(){
 }
 
 void LCD::setDDRAMAddress(unsigned char addr){
-	sendInstruction(0b01000000 & (addr & 0b00111111));
+	addr &= 0b01111111
+	sendInstruction(0b10000000 & addr);
+	DDRAMAddress = addr;
 }
 
 void LCD::writeToRAM(unsigned char data){
 	sendData(data);
+	DDRAMAddress += entry_dir==FORWARD ? 1 : -1; //remember to check if addr incremented on display shift
 }
 
 void LCD::functionSet(bool data_length, bool lines_num, bool font){
 	sendInstruction(0b00100001 & (data_length << 4) & (lines_num << 3) & (font << 2));
+	longbus = data_length;
+	num_of_lines = lines_num ? 2 : 1;
+	small_font = !font;
 }
 
 void LCD::displayControl(bool disp, bool curs, bool blnk){
 	sendInstruction(0b00001000 & (disp << 2) & (curs << 1) & (curs << 0));
+	disp_active = disp;
+	curs_active = curs;
+	blnk_active = blnk;
 }
 
 void LCD::returnHome(){
 	sendInstruction(0b00000010);
+}
+
+void setEntryMode(bool inc, bool curs){
+	sendInstruction(0b00000100 & (inc << 1) & (curs << 0));
 }
